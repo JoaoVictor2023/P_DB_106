@@ -1,6 +1,62 @@
 USE db_space_invaders;
 
--- 1. La première requête que l’on vous demande de réaliser est de sélectionner les 5 joueurs qui ont le meilleur score c’est-à-dire qui ont le nombre de points le plus élevé. Les joueurs doivent être classés dans l’ordre décroissant 
+- Attention supprimer d'abord les Utilisateurs et les rôles
+-- Administrateur du jeu
+CREATE ROLE Administrateur;
+ 
+-- Création de l’utilisateur :
+CREATE USER `Michel`@`` IDENTIFIED BY 'Michel';
+ 
+-- Privilèges de l’utilisateur :
+GRANT ALL PRIVILEGES ON db_space_invaders.* to Administrateur with grant option;
+ 
+-- Michel dans le rôle d'admin
+GRANT 'Administrateur' TO 'Michel'@'';
+ 
+-- Joueur
+CREATE ROLE Joueur;
+ 
+-- Création de l’utilisateur :
+CREATE USER 'Bernard'@'' IDENTIFIED BY 'Bernard';
+ 
+-- Privilèges de l’utilisateur :
+-- -- Droit de lecture des informations sur la table t_arme.
+GRANT SELECT ON db_space_invaders.t_arme to Joueur;
+ 
+-- Droit de créer une commande.
+GRANT CREATE ON db_space_invaders.t_commande to Joueur;
+ 
+-- Droit de lecture dans la table commande.
+GRANT SELECT ON db_space_invaders.t_commande to Joueur;
+ 
+-- Bernard dans le rôle joueur
+GRANT 'Joueur' TO 'Bernard'@'';
+ 
+-- Gestionnaire de la boutique
+ 
+CREATE ROLE GestionnaireBoutique;
+ 
+-- Création de l’utilisateur :
+CREATE USER 'Abiram'@'' IDENTIFIED BY 'Abiram';
+ 
+-- Privilèges de l’utilisateur :
+-- Droit de lecture dans la table t_joueur.
+GRANT SELECT ON db_space_invaders.t_joueur to GestionnaireBoutique;
+ 
+-- Droit de mise à jour, lecture, et suppression des armes.
+GRANT UPDATE, SELECT, DELETE ON db_space_invaders.t_arme to GestionnaireBoutique;
+ 
+-- Droit de lecture dans la table t_commande.
+GRANT SELECT ON db_space_invaders.t_commande to GestionnaireBoutique;
+ 
+-- Abiram dans le rôle Gestionnaire
+GRANT 'GestionnaireBoutique' TO 'Abiram'@'';
+ 
+SET DEFAULT ROLE 'Administrateur' TO 'Michel'@'';
+SET DEFAULT ROLE 'Joueur' TO 'Bernard'@'';
+SET DEFAULT ROLE 'GestionnaireBoutique' TO 'Abiram'@'';
+
+-- 1. La première requête que l’on vous demande de réaMichelr est de sélectionner les 5 joueurs qui ont le meilleur score c’est-à-dire qui ont le nombre de points le plus élevé. Les joueurs doivent être classés dans l’ordre décroissant 
 
 SELECT * 
 FROM t_joueur 
@@ -90,39 +146,4 @@ GROUP BY t_joueur.jouPseudo
 HAVING COUNT(DISTINCT t_detail_commande.fkArme) > 3;
 
 
--- GESTION DES UTILISATEURS 
 
--- ADMIN 
-
-CREATE ROLE 'Admin';
-GRANT ALL PRIVILEGES
-ON *.*
-TO 'Admin'
-WITH GRANT OPTION;
-
--- JOUEUR 
-
-CREATE ROLE 'Joueur';
-GRANT SELECT 
-ON t_arme 
-TO 'Joueur';
-
-GRANT INSERT, SELECT 
-ON t_commande 
-TO 'Joueur';
-
--- GESTIONNAIRE DE LA BOUTIQUE 
-
-CREATE ROLE 'Gestionnaire de la boutique';
-GRANT SELECT 
-ON t_joueur 
-TO 'Gestionnaire de la boutique';
-
-
-GRANT ALL PRIVILEGES 
-ON t_arme 
-TO 'Gestionnaire de la boutique';
-
-GRANT SELECT
-ON t_commande
-TO 'Gestionnaire de la boutique';
